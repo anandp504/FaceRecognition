@@ -27,7 +27,7 @@ E.g. id folder named `ids` containing subfolders `Adam` and `Eve`, each containi
 │   ├── Eve
 │   │   ├── Eve0.png
 ```
-Download and unpack the [model](https://drive.google.com/open?id=1EXPBSXwTaqrSC0OhUdXNmKSh9qJUQ55-) to a folder and run `python3 main.py ./folder/model.pb ./ids/` to start the program. Make sure to replace `./folder/model.pb` with the path to the downloaded model.
+Download and unpack the [model](https://drive.google.com/file/d/1EXPBSXwTaqrSC0OhUdXNmKSh9qJUQ55-/view) to a folder and run `python3 main.py ./folder/model.pb ./ids/` to start the program. Make sure to replace `./folder/model.pb` with the path to the downloaded model.
 
 Visualization hotkeys:
 *   l - toggle facial landmarks
