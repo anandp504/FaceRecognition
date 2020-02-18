@@ -14,7 +14,7 @@ Models, training code and inspriation can be found in the [facenet](https://gith
 A direct link to the pretrained Inception Resnet model can be found [here](https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk).
 
 ## How to
-Get the [model from facenet](https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk) and setup your id folder.
+Get the [model from facenet](https://drive.google.com/file/d/1EXPBSXwTaqrSC0OhUdXNmKSh9qJUQ55-) and setup your id folder.
 The id folder should contain subfolders, each containing at least one image of one person. The subfolders should be named after the person in the folder since this name is used as output when a match is found.
 
 E.g. id folder named `ids` containing subfolders `Adam` and `Eve`, each containing images of the respective person.
