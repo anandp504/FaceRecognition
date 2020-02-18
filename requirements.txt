@@ -1,0 +1,7 @@
+opencv-contrib-python==4.1.2.30
+# opencv-contrib-python==4.2.0.32
+Tensorflow==1.15.2
+Scikit-learn
+easygui
+pyqt5
+python-daemon
