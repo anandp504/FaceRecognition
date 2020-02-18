@@ -10,13 +10,8 @@ import cv2
 import os
 import pdb
 
-# import daemon
 import log
-
-# from daemon import pidfile
-
-# import sys, time
-# from daemon_service import Daemon
+from video_capture_async import VideoCaptureAsync
 
 class IdData:
     """Keeps track of known identities and calculates id matches"""
@@ -128,115 +123,7 @@ def load_model(model):
     else:
         raise ValueError("Specify model file, not directory!")
 
-# class FaceRecognition(Daemon):
-#     def run(self):
-#         with tf.Graph().as_default():
-#             # with tf.Session() as sess:
-#             with tf.compat.v1.Session() as sess:
-
-#                 # Setup models
-#                 mtcnn = detect_and_align.create_mtcnn(sess, None)
-
-#                 load_model(self.model)
-#                 # images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
-#                 images_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("input:0")
-#                 # embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
-#                 embeddings = tf.compat.v1.get_default_graph().get_tensor_by_name("embeddings:0")
-#                 # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
-#                 phase_train_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("phase_train:0")
-
-#                 # Load anchor IDs
-#                 id_data = IdData(
-#                     self.id_folder[0], mtcnn, sess, embeddings, images_placeholder, phase_train_placeholder, self.threshold
-#                 )
-
-#                 cap = cv2.VideoCapture(0)
-#                 # cap = cv2.VideoCapture('http://10.42.0.66:8080/video')
-#                 frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-#                 show_landmarks = False
-#                 show_bb = False
-#                 show_id = True
-#                 show_fps = False
-#                 frame_detections = None
-
-#                 while True:
-#                     start = time.time()
-#                     _, frame = cap.read()
-
-#                     # Locate faces and landmarks in frame
-#                     face_patches, padded_bounding_boxes, landmarks = detect_and_align.detect_faces(frame, mtcnn)
-
-#                     if len(face_patches) > 0:
-#                         face_patches = np.stack(face_patches)
-#                         feed_dict = {images_placeholder: face_patches, phase_train_placeholder: False}
-#                         embs = sess.run(embeddings, feed_dict=feed_dict)
-
-#                         matching_ids, matching_distances = id_data.find_matching_ids(embs)
-#                         frame_detections = {"embs": embs, "bbs": padded_bounding_boxes, "frame": frame.copy()}
-
-#                         print("Matches in frame:")
-#                         for bb, landmark, matching_id, dist in zip(
-#                             padded_bounding_boxes, landmarks, matching_ids, matching_distances
-#                         ):
-#                             if matching_id is None:
-#                                 matching_id = "Unknown"
-#                                 print("Unknown! Couldn't fint match.")
-#                             else:
-#                                 print("Hi %s! Distance: %1.4f" % (matching_id, dist))
-
-#                             if show_id:
-#                                 font = cv2.FONT_HERSHEY_SIMPLEX
-#                                 if matching_id is "Unknown":
-#                                     cv2.putText(frame, matching_id, (bb[0], bb[3]), font, 1, (0, 40, 255), 1, cv2.LINE_AA)
-#                                 else:
-#                                     cv2.putText(frame, matching_id, (bb[0], bb[3]), font, 1, (0, 255, 0), 1, cv2.LINE_AA)  
-#                             if show_bb:
-#                                 cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (255, 0, 0), 2)
-#                             if show_landmarks:
-#                                 for j in range(5):
-#                                     size = 1
-#                                     top_left = (int(landmark[j]) - size, int(landmark[j + 5]) - size)
-#                                     bottom_right = (int(landmark[j]) + size, int(landmark[j + 5]) + size)
-#                                     cv2.rectangle(frame, top_left, bottom_right, (255, 0, 255), 2)
-#                     else:
-#                         print("Couldn't find a face")
-
-#                     end = time.time()
-
-#                     seconds = end - start
-#                     fps = round(1 / seconds, 2)
-
-#                     if show_fps:
-#                         font = cv2.FONT_HERSHEY_SIMPLEX
-#                         cv2.putText(frame, str(fps), (0, int(frame_height) - 5), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-
-#                     cv2.imshow("frame", frame)
-
-#                     key = cv2.waitKey(1)
-#                     if key == ord("q"):
-#                         break
-#                     elif key == ord("l"):
-#                         show_landmarks = not show_landmarks
-#                     elif key == ord("b"):
-#                         show_bb = not show_bb
-#                     elif key == ord("i"):
-#                         show_id = not show_id
-#                     elif key == ord("f"):
-#                         show_fps = not show_fps
-#                     elif key == ord("s") and frame_detections is not None:
-#                         for emb, bb in zip(frame_detections["embs"], frame_detections["bbs"]):
-#                             patch = frame_detections["frame"][bb[1] : bb[3], bb[0] : bb[2], :]
-#                             cv2.imshow("frame", patch)
-#                             cv2.waitKey(1)
-#                             new_id = easygui.enterbox("Who's in the image? Leave empty for non-valid")
-#                             if len(new_id) > 0:
-#                                 id_data.add_id(emb, new_id, patch)
-
-#                 cap.release()
-#                 cv2.destroyAllWindows()
-
-def main(args):
+def start_face_recognition(args):
     model="/Users/anand/Documents/code/medium-facenet-tutorial/etc/20180402-114759/20180402-114759.pb"
     id_folder=["/Users/anand/Documents/datapipeline/devcon_2020/face_recognition/ids"]
     threshold=1.0
@@ -266,9 +153,20 @@ def main(args):
                 id_folder[0], mtcnn, sess, embeddings, images_placeholder, phase_train_placeholder, threshold
             )
 
+            # if asynchronous:
+            #     cap = VideoCaptureAsync(0)
+            #     frame_height = cap.get_frame_height()
+            # else:
+            #     cap = cv2.VideoCapture(0)
+            #     frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
             cap = cv2.VideoCapture(0)
-            # cap = cv2.VideoCapture('http://10.42.0.66:8080/video')
             frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            # cap = cv2.VideoCapture('http://10.42.0.66:8080/video')
+            # frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+            # if asynchronous:
+            #     cap.start()
 
             show_landmarks = False
             show_bb = False
@@ -350,35 +248,18 @@ def main(args):
                         if len(new_id) > 0:
                             id_data.add_id(emb, new_id, patch)
 
+            # if asynchronous:
+            #     cap.stop()
+            # else:
+            #     cap.release()
             cap.release()
             cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
    parser = argparse.ArgumentParser()
-
    # parser.add_argument("model", type=str, help="Path to model protobuf (.pb) file")
    # parser.add_argument("id_folder", type=str, nargs="+", help="Folder containing ID folders")
    # parser.add_argument("-t", "--threshold", type=float, help="Distance threshold defining an id match", default=1.0)
    parser.add_argument("profile_id", type=str, help="User profile being monitored")
-   main(parser.parse_args())
-
-# if __name__ == '__main__':
-#     daemon = FaceRecognition('/tmp/face-recognition/face-recognition.pid', stdout='/tmp/face-recognition/face-recognition.error', stderr='/tmp/face-recognition/face-recognition.error')
-#     daemon.model="/Users/anand/Documents/code/medium-facenet-tutorial/etc/20180402-114759/20180402-114759.pb"
-#     daemon.id_folder=["/Users/anand/Documents/datapipeline/devcon_2020/face_recognition/ids"]
-#     daemon.threshold=1.0
-#     if len(sys.argv) == 2:
-#         if 'start' == sys.argv[1]:
-#             daemon.start()
-#         elif 'stop' == sys.argv[1]:
-#             daemon.stop()
-#         elif 'restart' == sys.argv[1]:
-#             daemon.restart()
-#         else:
-#             print('Unknown command')
-#             sys.exit(2)
-#         sys.exit(0)
-#     else:
-#         print('usage: %s start|stop|restart' % sys.argv[0])
-#         sys.exit(2)
+   start_face_recognition(parser.parse_args())
