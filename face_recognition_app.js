@@ -34,11 +34,9 @@ function stopFaceRecognition(req, res) {
     var process = spawn('python',["/Users/anand/Documents/code/FaceRecognition/stop_face_recognition.py", 
                             req.query.profile_id] ); 
   
-    res.send('{"response": "Successfully started face recognition"'); 
+    // res.send('{"response": "Successfully started face recognition"'); 
     
-    /*
     process.stdout.on('data', function(data) { 
         res.send(data.toString()); 
     }); 
-    */
 } 
