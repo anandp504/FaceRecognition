@@ -1,5 +1,7 @@
 from sklearn.metrics.pairwise import pairwise_distances
 from tensorflow.python.platform import gfile
+from pynput.mouse import Button, Controller
+
 import tensorflow as tf
 import numpy as np
 import detect_and_align
@@ -162,6 +164,9 @@ def start_face_recognition(args):
 
             cap = cv2.VideoCapture(0)
             frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+            mouse = Controller()
+            counter = 0
             # cap = cv2.VideoCapture('http://10.42.0.66:8080/video')
             # frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
@@ -169,8 +174,8 @@ def start_face_recognition(args):
             #     cap.start()
 
             show_landmarks = False
-            show_bb = False
-            show_id = True
+            show_bb = True
+            show_id = False
             show_fps = False
             frame_detections = None
             while True:
@@ -195,10 +200,10 @@ def start_face_recognition(args):
                         if matching_id is None:
                             matching_id = "Unknown"
                             print("Unknown! Couldn't find match.")
-                            logger.info("profile_id Unknown found")
+                            logger.info("Unknown")
                         else:
                             print("Hi %s! Distance: %1.4f" % (matching_id, dist))
-                            logger.info("profile_id %s found" % matching_id)
+                            logger.info(matching_id)
 
                         if show_id:
                             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -216,6 +221,7 @@ def start_face_recognition(args):
                                 cv2.rectangle(frame, top_left, bottom_right, (255, 0, 255), 2)
                 else:
                     print("Couldn't find a face")
+                    logger.info("NO_FACE_FOUND")
 
                 end = time.time()
 
@@ -227,6 +233,12 @@ def start_face_recognition(args):
                     cv2.putText(frame, str(fps), (0, int(frame_height) - 5), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
                 cv2.imshow("frame", frame)
+                if (counter == 0):
+                    cv.waitKey(100)
+                    mouse.position = (100, 800)
+                    mouse.press(Button.left)
+                    mouse.release(Button.left)
+                    counter += 1
 
                 key = cv2.waitKey(1)
                 if key == ord("q"):

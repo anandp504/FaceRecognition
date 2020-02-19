@@ -3,3 +3,4 @@ __pycache__/
 ids/
 model/
 node_modules/*
+.DS_Store

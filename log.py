@@ -2,7 +2,8 @@ import logging
 
 def setup_custom_logger(name, profile_id):
     
-    formatstr = '%(asctime)s | %(message)s'
+    # formatstr = '%(asctime)s | %(message)s'
+    formatstr = '%(message)s'
     fh = logging.FileHandler("/tmp/face-recognition/%s.log" % profile_id, mode='w', encoding=None, delay=False)
     formatter = logging.Formatter(formatstr)
     fh.setFormatter(formatter)
