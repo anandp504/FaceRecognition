@@ -2,6 +2,8 @@ from subprocess import check_call, CalledProcessError
 import re
 import argparse
 import json
+import requests
+import time
 
 def compute_face_recognition_results(profile_id):
 	profile_file_location = ("/tmp/face-recognition/%s.log" % profile_id)
@@ -34,12 +36,31 @@ def compute_face_recognition_results(profile_id):
 	other_profiles_found = list(set(profile_id_found))
 	other_profiles_found.remove("%s" % profile_id)
 	face_recognition_result = {}
-	face_recognition_result['attention_percentage'] = round(attention_percentage, 2)
-	face_recognition_result['player_profile_id'] = profile_id
-	face_recognition_result['other_profile_ids_found'] = other_profiles_found
-	face_recognition_result['total_frames_captured'] = total_captures
-	output_json = json.dumps(face_recognition_result)
+	face_recognition_result['eid'] = "DC_PROCTOR"
+	face_recognition_result['stallId'] = "STA3"
+	face_recognition_result['ideaId'] = "IDE23"
+	face_recognition_result['profileId'] = profile_id
+	edata = {}
+	edata['attention_percentage'] = round(attention_percentage, 2)
+	# face_recognition_result['player_profile_id'] = profile_id
+	edata['anon_profile_ids'] = other_profiles_found
+	edata['total_frames_captured'] = total_captures
+	face_recognition_result['edata'] = edata
+	face_recognition_result['ets'] = int(time.time())
+
+	### Request envelope to call telemetry api
+	request_envelope = {}
+	request_envelope['id'] = "api.devcon.sunbirded.telemetry"
+	request_envelope['ver'] = "3.0"
+	params = {"msgid": "7e7a3aa5e1954bb019f17032517e2b0e"}
+	request_envelope['ets'] = int(time.time())
+	events = []
+	events.append(face_recognition_result)
+	request_envelope['events'] = events
+	output_json = json.dumps(request_envelope)
 	print(output_json)
+	res = requests.post('https://devcon.sunbirded.org/content/data/v1/telemetry', json=request_envelope)
+	print(res.text)
 
 def stop_detection(args):
 	try:

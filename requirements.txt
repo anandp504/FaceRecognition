@@ -7,3 +7,4 @@ pyqt5
 python-daemon
 flask
 pynput
+requests
