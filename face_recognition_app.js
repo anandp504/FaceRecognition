@@ -40,3 +40,11 @@ function stopFaceRecognition(req, res) {
         res.send(data.toString()); 
     }); 
 } 
+
+app.post('/devcon/face_recognition/sync_images', syncRegistryImages); 
+function syncRegistryImages(req, res) {
+    var spawn = require("child_process").spawn;  
+    var process = spawn('sh',["/Users/anand/Documents/code/FaceRecognition/sync_registry_files.sh"]); 
+  
+    res.send('{"response": "Successfully synced images"'); 
+}
